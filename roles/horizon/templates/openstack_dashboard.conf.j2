@@ -5,6 +5,11 @@
 
 <VirtualHost *:80>
     ServerName {{ horizon_server_name }}
+
+    LogLevel  {{ horizon_log_level }}
+    ErrorLog  /var/log/horizon/horizon-error.log
+    CustomLog /var/log/horizon/horizon-access.log {{ horizon_apache_custom_log_format }}
+    {% if horizon_ssl_enabled -%}
     RewriteEngine On
     RewriteCond %{HTTPS} !=on
     RewriteRule ^/?(.*) https://%{HTTP_HOST}/$1 [R,L]
@@ -14,8 +19,8 @@
     ServerName {{ horizon_server_name }}
 
     LogLevel  {{ horizon_log_level }}
-    ErrorLog  /var/log/horizon/horizon-error.log
-    CustomLog /var/log/horizon/ssl_access.log {{ horizon_apache_custom_log_format }}
+    ErrorLog  /var/log/horizon/ssl-horizon-error.log
+    CustomLog /var/log/horizon/ssl-horizon-access.log {{ horizon_apache_custom_log_format }}
     Options +FollowSymLinks
 
     SSLEngine on
@@ -29,6 +34,7 @@
     SSLHonorCipherOrder On
     SSLCipherSuite {{ horizon_ssl_cipher_suite }}
     SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+    {%- endif %}
 
     WSGIScriptAlias / {{ horizon_lib_wsgi_file }}
     WSGIDaemonProcess horizon user={{ horizon_system_user_name }} group={{ horizon_system_group_name }} processes={{ horizon_wsgi_processes | default(wsgi_threads) }} threads={{ horizon_wsgi_threads | default(wsgi_threads) }}

@@ -76,6 +76,7 @@ horizon_enable_cinder_backup: False
 # horizon_wsgi_threads: 4
 
 ## Horizon SSL
+horizon_ssl_enabled: False
 horizon_ssl_cert: /etc/ssl/certs/horizon.pem
 horizon_ssl_key: /etc/ssl/private/horizon.key
 horizon_ssl_ca_cert: /etc/ssl/certs/horizon-ca.pem

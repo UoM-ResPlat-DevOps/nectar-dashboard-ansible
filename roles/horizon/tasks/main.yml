@@ -20,9 +20,11 @@
 - include: horizon_db_setup.yml
 - include: horizon_ssl_self_signed.yml
   when: >
-    horizon_user_ssl_cert is not defined or
-    horizon_user_ssl_key is not defined
+    horizon_ssl_enabled and
+    (horizon_user_ssl_cert is not defined or
+    horizon_user_ssl_key is not defined)
 - include: horizon_ssl_user_provided.yml
+  when: horizon_ssl_enabled
 - include: horizon_apache.yml
 
 - name: Flush handlers

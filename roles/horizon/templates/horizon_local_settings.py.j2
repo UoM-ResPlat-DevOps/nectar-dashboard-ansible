@@ -1,11 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import os
-import urllib
 
 from django.utils.translation import ugettext_lazy as _
 
 from horizon.utils import secret_key
 
-from openstack_dashboard import exceptions
 from openstack_dashboard.settings import HORIZON_CONFIG
 
 DEBUG = {{ debug }}
@@ -49,9 +49,6 @@ ALLOWED_HOSTS = ['*']
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 {%- endif %}
-
-# Define the time after which a Horizon session expires
-SESSION_TIMEOUT = {{ horizon_session_timeout }}
 
 {% if horizon_keystone_endpoint.endswith('v3') %}
 # Overrides for OpenStack API versions. Use this setting to force the
@@ -130,19 +127,6 @@ CACHES = {
     }
 }
 
-# Set the session engine configuration:
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
-DATABASES = {
-    'default': {
-        'ENGINE': '{{ horizon_database_engine }}',
-        'NAME': '{{ horizon_database_name }}',
-        {% if horizon_database_address is defined %}'HOST': '{{ horizon_database_address }}',{% endif %}
-        {% if horizon_database_user is defined %}'USER': '{{ horizon_database_user }}',{% endif %}
-        {% if horizon_database_password is defined %}'PASSWORD': '{{ horizon_database_password }}',{% endif %}
-        'default-character-set': 'utf8'
-    },
-}
-
 # Send email to the console by default
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Or send them to /dev/null
@@ -169,18 +153,6 @@ OPENSTACK_KEYSTONE_URL = "{{ horizon_keystone_endpoint }}"
 
 # The default role assigned to users
 OPENSTACK_KEYSTONE_DEFAULT_ROLE = "{{ horizon_default_role_name }}"
-
-{% if horizon_rcshibboleth_url is defined %}
-# Shibboleth URL
-{% if horizon_ssl_enabled -%}
-HORIZON_CONFIG['rcshibboleth_url'] = "{{ horizon_rcshibboleth_url }}/?return-path=%s" % urllib.quote("https://{{ horizon_server_name }}/auth/websso/")
-{% else -%}
-HORIZON_CONFIG['rcshibboleth_url'] = "{{ horizon_rcshibboleth_url }}/?return-path=%s" % urllib.quote("http://{{ horizon_server_name }}/auth/websso/")
-{%- endif %}
-
-# Enables keystone web single-sign-on if set to True.
-WEBSSO_ENABLED = True
-{% endif %}
 
 # Disable SSL certificate checks (useful for self-signed certificates):
 OPENSTACK_SSL_NO_VERIFY = {{ horizon_ssl_no_verify | bool }}
@@ -442,10 +414,12 @@ LOGGING = {
         # by default.
         'django.db.backends': {
             'handlers': ['null'],
+            'level': 'DEBUG',
             'propagate': False,
         },
         'requests': {
             'handlers': ['null'],
+            'level': 'DEBUG',
             'propagate': False,
         },
         'horizon': {
@@ -523,7 +497,8 @@ LOGGING = {
             'propagate': False,
         },
         'scss': {
-            'handlers': ['null'],
+            'handlers': ['file'],
+            'level': 'DEBUG',
             'propagate': False,
         },
     }
@@ -707,10 +682,6 @@ OPENSTACK_NOVA_EXTENSIONS_BLACKLIST = [
 ]
 {% endif %}
 
-{% if horizon_site_name is defined %}
-SITE_BRANDING = '{{ horizon_site_name }}'
-{% endif %}
-
 # NeCTAR dashboard settings
 NECTAR_BASE = "{{ nectar_dashboard_path }}"
 NECTAR_THEME = os.path.join(NECTAR_BASE, "theme")
@@ -719,16 +690,17 @@ if os.path.exists(NECTAR_THEME):
         CUSTOM_THEME_PATH = NECTAR_THEME
 
 HORIZON_CONFIG["customization_module"] = "nectar_dashboard.overrides"
-
 POLICY_FILES_PATH = os.path.join(NECTAR_BASE, "policy")
+OPENSTACK_STORAGE_AVAILABILITY_ZONES = ['melbourne-qh2', 'qld', 'monash-01']
 
+####################
+# NeCTAR settings  #
+####################
+import urllib
 
-{% if horizon_google_analytics_key is defined %}
-# Google analytics key, disabling this variable will disable google analytics
-HORIZON_CONFIG['google_analytics_key'] = '{{ horizon_google_analytics_key }}'
-{% endif %}
-
-PASSWORD_RESET_TOKEN = 'resettoken'
+{% if horizon_site_name is defined -%}
+SITE_BRANDING = '{{ horizon_site_name }}'
+{%- endif %}
 
 ADMINS = (
      ('Sam Morrison', 'sam.morrison@unimelb.edu.au'),
@@ -737,8 +709,6 @@ MANAGERS = ADMINS
 
 NECTAR_DEFAULT_NETWORK_ENABLED = True
 NECTAR_NETWORK_PROVIDER_FILTER = 'midonet'
-
-OPENSTACK_STORAGE_AVAILABILITY_ZONES = ['melbourne-qh2', 'qld', 'monash-01']
 
 OPENSTACK_PREPROD_CELLS = ["nova"]
 OPENSTACK_PREPROD_ROLE = "admin"
@@ -756,6 +726,27 @@ ALLOCATION_EMAIL_BCC_RECIPIENTS = []
 
 # Disable getting console in network topology view as it is a massive performance hit
 CONSOLE_TOPOLOGY_ENABLED = False
+
+{% if horizon_google_analytics_key is defined %}
+# Google analytics key, disabling this variable will disable google analytics
+HORIZON_CONFIG['google_analytics_key'] = '{{ horizon_google_analytics_key }}'
+{% endif %}
+
+{% if horizon_rcshibboleth_url is defined %}
+# Shibboleth URL
+{% if horizon_ssl_enabled -%}
+HORIZON_CONFIG['rcshibboleth_url'] = "{{ horizon_rcshibboleth_url }}/?return-path=%s" % urllib.quote("https://{{ horizon_server_name }}/auth/websso/")
+{% else -%}
+HORIZON_CONFIG['rcshibboleth_url'] = "{{ horizon_rcshibboleth_url }}/?return-path=%s" % urllib.quote("http://{{ horizon_server_name }}/auth/websso/")
+{%- endif %}
+
+# Enables keystone web single-sign-on if set to True.
+WEBSSO_ENABLED = True
+{% endif %}
+PASSWORD_RESET_TOKEN = 'resettoken'
+
+# Define the time after which a Horizon session expires
+SESSION_TIMEOUT = {{ horizon_session_timeout }}
 
 CREATE_INSTANCE_FLAVOR_GROUP_ORDER = [
     'standard-v2',
@@ -782,8 +773,22 @@ REST_VIEW_SETS = (
     ('grants', 'nectar_dashboard.rcallocation.api.GrantViewSet'),
 )
 
+DATABASES = {
+    'default': {
+        'ENGINE': '{{ horizon_database_engine }}',
+        'NAME': '{{ horizon_database_name }}',
+        {% if horizon_database_address is defined %}'HOST': '{{ horizon_database_address }}',{% endif %}
+        {% if horizon_database_user is defined %}'USER': '{{ horizon_database_user }}',{% endif %}
+        {% if horizon_database_password is defined %}'PASSWORD': '{{ horizon_database_password }}',{% endif %}
+        'default-character-set': 'utf8'
+    },
+}
+
+# Set the session engine configuration:
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+
 {% if horizon_murano_enabled %}
-MURANO_DASHBOARD_NAME ='Applications (BETA)'
+MURANO_DASHBOARD_NAME ='Applications'
 {% if horizon_murano_api_url is defined %}
 MURANO_API_URL = '{{ horizon_murano_api_url }}'
 {% endif %}

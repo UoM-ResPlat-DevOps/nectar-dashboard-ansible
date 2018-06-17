@@ -19,9 +19,10 @@ horizon_developer_constraints:
 
 
 ## NeCTAR dashboard customisation
-nectar_dashboard_repo: 'https://github.com/NeCTAR-RC/nectar-dashboard.git'
-nectar_dashboard_path: /opt/nectar-dashboard
+nectar_dashboard_repo: 'https://github.com/UoM-ResPlat-DevOps/uom-cloud-dashboard.git'
+nectar_dashboard_path: /opt/uom-cloud-dashboard
 nectar_dashboard_version: nectar/liberty
+horizon_site_name: Melbourne Research Cloud Dashboard
 
 horizon_murano_enabled: True
 horizon_murano_api_url: 'https://murano.test.rc.nectar.org.au:8082'

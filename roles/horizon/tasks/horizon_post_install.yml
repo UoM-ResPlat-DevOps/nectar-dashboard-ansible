@@ -65,7 +65,6 @@
     state: "link"
   with_items:
     - { src: "/etc/horizon/local_settings.py", dest: "{{ horizon_lib_dir }}/openstack_dashboard/local/local_settings.py" }
-    - { src: "{{ horizon_lib_dir }}/muranodashboard/local/_50_murano.py", dest: "{{ horizon_lib_dir }}/openstack_dashboard/local/enabled/_50_murano.py" }
   notify: Restart apache2
   tags:
     - horizon-configs

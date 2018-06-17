@@ -13,15 +13,15 @@ horizon_venv_enabled: true
 horizon_developer_mode: True
 horizon_developer_constraints:
   - 'git+https://github.com/NeCTAR-RC/django_openstack_auth.git@nectar/liberty#egg=openstack_auth'
-  - 'git+https://github.com/NeCTAR-RC/horizon.git@nectar/liberty#egg=horizon'
+  - 'git+https://github.com/NeCTAR-RC/horizon.git@nectar/queens#egg=horizon'
   - 'git+https://github.com/openstack/murano-pkg-check.git@47f7379e5e91eac2ba9ede6645cb56ff305d2c0c#egg=murano-pkg-check' # https://bugs.launchpad.net/murano/+bug/1653060
-  - 'git+https://github.com/openstack/murano-dashboard.git@liberty-eol#egg=muranodashboard'
+  - 'git+https://github.com/openstack/murano-dashboard.git@stable/queens#egg=muranodashboard'
 
 
 ## NeCTAR dashboard customisation
 nectar_dashboard_repo: 'https://github.com/UoM-ResPlat-DevOps/uom-cloud-dashboard.git'
 nectar_dashboard_path: /opt/uom-cloud-dashboard
-nectar_dashboard_version: nectar/liberty
+nectar_dashboard_version: nectar/queens
 horizon_site_name: Melbourne Research Cloud Dashboard
 
 horizon_murano_enabled: True
@@ -158,7 +158,7 @@ horizon_pip_packages:
   - django-appconf
   - greenlet
   - 'git+https://github.com/NeCTAR-RC/django_openstack_auth.git@nectar/liberty#egg=openstack_auth'
-  - 'git+https://github.com/NeCTAR-RC/horizon.git@nectar/liberty#egg=horizon'
+  - 'git+https://github.com/NeCTAR-RC/horizon.git@nectar/queens#egg=horizon'
   - keystonemiddleware
   - PyMySQL
   - pysqlite
@@ -166,6 +166,5 @@ horizon_pip_packages:
   - pycrypto
   - python-memcached
   - 'git+https://github.com/openstack/murano-pkg-check.git@47f7379e5e91eac2ba9ede6645cb56ff305d2c0c#egg=murano-pkg-check' # https://bugs.launchpad.net/murano/+bug/1653060
-  - 'git+https://github.com/openstack/murano-dashboard.git@liberty-eol#egg=muranodashboard'
-
-
+  - 'git+https://github.com/openstack/murano-dashboard.git@stable/queens#egg=muranodashboard'
+  - 'git+https://github.com/openstack/trove-dashboard.git@stable/queens#egg=trove_dashboard'

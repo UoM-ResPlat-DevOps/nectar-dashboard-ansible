@@ -747,6 +747,41 @@ IMAGES_LIST_FILTER_TENANTS=[{"text":"NeCTAR official","tenant":"869bb83215514c56
 KEYSTONE_MEMBER_ROLE_ID = 'f5ef8c03b88f4bc98b2b2a3856f8ad1c'
 KEYSTONE_ADMIN_ENDPOINT_PERMS = ('openstack.roles.tenantmanager',)
 
+# following is the comma separated list of people who are to receive
+# e-mail when an allocation request is submitted
+ALLOCATION_EMAIL_RECIPIENTS = ("allocations@nectar.org.au",)
+ALLOCATION_EMAIL_FROM = "allocations@nectar.org.au"
+ALLOCATION_EMAIL_REPLY_TO = "support@nectar.org.au"
+ALLOCATION_EMAIL_BCC_RECIPIENTS = []
+
+# Disable getting console in network topology view as it is a massive performance hit
+CONSOLE_TOPOLOGY_ENABLED = False
+
+CREATE_INSTANCE_FLAVOR_GROUP_ORDER = [
+    'standard-v2',
+    'standard'
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':
+    'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_FILTER_BACKENDS':
+    ('rest_framework.filters.DjangoFilterBackend',),
+}
+
+ADD_INSTALLED_APPS = [
+    'rest_framework',
+]
+
+REST_VIEW_SETS = (
+    ('allocations', 'nectar_dashboard.rcallocation.api.AllocationViewSet'),
+    ('quotas', 'nectar_dashboard.rcallocation.api.QuotaViewSet'),
+    ('chiefinvestigators', 'nectar_dashboard.rcallocation.api.ChiefInvestigatorViewSet'),
+    ('institutions', 'nectar_dashboard.rcallocation.api.InstitutionViewSet'),
+    ('publications', 'nectar_dashboard.rcallocation.api.PublicationViewSet'),
+    ('grants', 'nectar_dashboard.rcallocation.api.GrantViewSet'),
+)
+
 {% if horizon_murano_enabled %}
 MURANO_DASHBOARD_NAME ='Applications (BETA)'
 {% if horizon_murano_api_url is defined %}
@@ -756,4 +791,6 @@ MAX_FILE_SIZE_MB = '5'
 LOGGING['loggers']['muranodashboard'] = {'handlers': ['file'], 'level': 'DEBUG'}
 LOGGING['loggers']['muranoclient'] = {'handlers': ['file'], 'level': 'ERROR'}
 MURANO_USE_GLARE = False
+
+MURANO_IMAGE_FILTER_PROJECT_ID = '1fe7dcac580443a4818d10d18151e42f'
 {% endif %}

@@ -1,7 +1,7 @@
 ---
 - name: Clone NeCTAR dashboard config and theme
   git:
-    repo: https://github.com/NeCTAR-RC/nectar-dashboard.git
+    repo: "{{ nectar_dashboard_repo }}"
     dest: "{{ nectar_dashboard_path }}"
     version: "{{ nectar_dashboard_version }}"
     update: no

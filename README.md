@@ -24,13 +24,13 @@ Image  : NeCTAR Ubuntu 18.04 LTS (Bionic) amd64
 Ports  : ssh, http (limit IP ranges to prevent public access)
 ```
 
-Install dependencies:
+### Install dependencies:
 ```
 sudo apt install -y ansible python-pip git
 git clone https://github.com/UoM-ResPlat-DevOps/uom-cloud-dashboard-ansible.git
 ```
 
-Make adjustments for a "dev" machine.
+### Make adjustments for a "dev" machine.
 
 group_vars/all.yml
 ```
@@ -68,12 +68,12 @@ WEBSSO_ENABLED = False
 
 
 
-Execute playbook
+### Execute playbook
 ```
 sudo ansible-playbook -i "horizon_all," -c local playbook.yml
 ```
 
-Post playbook install
+### Post playbook install
 ```
 ### Remove the _description.html and _login.html overrides so that the regular Username/Password fields appear
 cd /opt/uom-cloud-dashboard/theme/templates/auth/
@@ -86,11 +86,20 @@ sudo systemctl restart apache2
 ```
 
 
-Test:
+### Test
 - Go to http://(ip address)
 - Enter your keystone username & password to log in
 
 
+### Ready for local dev
+
+| Location | Description |
+| --- | --- |
+| /opt/uom-cloud-dashboard/ | Extensions code (git). Make changes here |
+| /opt/horizon/lib/python2.7/site-packages/openstack_dashboard/ | Horizon Django location |
+| /etc/horizon/local_settings.py | Installed local_settings.py file |
+| /var/lib/horizon/dashboard.sqlite3 | sqlite3 database |
+| /opt/horizon/bin/horizon-manage.py | For running Django commands. |
 
 
 

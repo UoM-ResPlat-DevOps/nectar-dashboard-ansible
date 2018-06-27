@@ -80,8 +80,13 @@ cd /opt/uom-cloud-dashboard/theme/templates/auth/
 sudo mv _description.html _description.html.bak
 sudo mv _login.html _login.html.bak
 
-### Add the enables/disables from extensions repo
+### Add the enables/disables from extensions repo + do Django stuff
 sudo cp --symbolic-link /opt/uom-cloud-dashboard/enabled/*.py  /opt/horizon/lib/python2.7/site-packages/openstack_dashboard/local/enabled/
+cd /opt/horizon/lib/python2.7/site-packages/openstack_dashboard/
+sudo /opt/horizon/bin/horizon-manage.py migrate rcallocation
+sudo /opt/horizon/bin/horizon-manage.py compress
+
+### 
 sudo systemctl restart apache2
 ```
 

@@ -101,7 +101,7 @@ sudo systemctl restart apache2
 | Location | Description |
 | --- | --- |
 | /opt/uom-cloud-dashboard/ | Extensions code (git). Make changes here |
-| /opt/horizon/lib/python2.7/site-packages/openstack_dashboard/ | Horizon Django location |
+| /opt/horizon/lib/python2.7/site-packages/openstack_dashboard/ | Installed Horizon location |
 | /etc/horizon/local_settings.py | Installed local_settings.py file |
 | /var/lib/horizon/dashboard.sqlite3 | sqlite3 database |
 | /opt/horizon/bin/horizon-manage.py | For running Django commands. |

@@ -8,7 +8,7 @@ verbose: True
 horizon_venv_path: /opt/horizon
 
 # Set this to enable or disable installing in a venv
-horizon_venv_enabled: true
+horizon_venv_enabled: True
 
 horizon_developer_mode: True
 horizon_developer_constraints:
@@ -22,7 +22,21 @@ horizon_developer_constraints:
 nectar_dashboard_repo: 'https://github.com/UoM-ResPlat-DevOps/uom-cloud-dashboard.git'
 nectar_dashboard_path: /opt/uom-cloud-dashboard
 nectar_dashboard_version: nectar/queens
-horizon_site_name: Melbourne Research Cloud Dashboard
+horizon_site_name: Melbourne Research Cloud
+
+nectar_dashboard_enabled:
+  - _40_disable_change_password.py
+  - _40_disable_identity.py
+  - _50_reset_password_panel.py
+  - _70_allocations.py
+  - _80_manila_project_add_share_panel_group.py
+  - _9000_disable_dns_reversedns.py
+  - _9000_disable_trove_clusters.py
+  - _9000_disable_volume_cg.py
+  - _9000_disable_volume_cg_snapshots.py
+  - _9001_users_add_panel_to_group.py
+  - _9900_disable_share_networks.py
+  - _9900_users_add_panel_group.py
 
 horizon_murano_enabled: True
 horizon_murano_api_url: 'https://murano.test.rc.nectar.org.au:8082'
@@ -85,7 +99,7 @@ horizon_ssl_ca_cert: /etc/ssl/certs/horizon-ca.pem
 horizon_ssl_protocol: "ALL -SSLv2 -SSLv3"
 horizon_ssl_cipher_suite: "ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS"
 # if using a self-signed certificate, set this to true to regenerate it
-horizon_ssl_self_signed_regen: false
+horizon_ssl_self_signed_regen: False
 horizon_ssl_self_signed_subject: "/C=AU/ST=Victoria/L=Melbourne/O=NeCTAR/CN={{ horizon_server_name }}/subjectAltName=IP.1={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 
 ## Horizon's keystone endpoint settings

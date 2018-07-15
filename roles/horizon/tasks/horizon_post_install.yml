@@ -65,6 +65,9 @@
     state: "link"
   with_items:
     - { src: "/etc/horizon/local_settings.py", dest: "{{ horizon_lib_dir }}/openstack_dashboard/local/local_settings.py" }
+    {% for enabled_file in nectar_dashboard_enabled -%}
+    - { src: "{{ nectar_dashboard_path }}/enabled/{{ enabled_file }}", dest: "{{ horizon_lib_dir }}/openstack_dashboard/local/enabled/{{ enabled_file }}" }
+    {%- endfor %}
   notify: Restart apache2
   tags:
     - horizon-configs

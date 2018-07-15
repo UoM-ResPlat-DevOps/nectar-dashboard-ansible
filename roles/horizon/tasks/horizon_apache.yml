@@ -18,11 +18,11 @@
     state: "{{ item.state }}"
     name: "{{ item.name }}"
   with_items:
+    - { state: absent, name: mpm_event }
     - { state: present, name: rewrite }
     - { state: present, name: wsgi }
     - { state: present, name: ssl }
-    - { state: present, name: mpm_worker }
-    #- { state: absent, name: mpm_event }
+    - { state: present, name: mpm_prefork }
   notify: Restart apache2
   tags:
     - horizon-apache-config

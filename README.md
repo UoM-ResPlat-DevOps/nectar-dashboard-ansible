@@ -1,4 +1,6 @@
-# nectar-dashboard-ansible
+# uom-cloud-dashboard-ansible
+
+This repository was forked from [NeCTAR-RC/nectar-dashboard-ansible](https://github.com/NeCTAR-RC/nectar-dashboard-ansible/).
 
 To execute the playbook on a local machine:
 ```
@@ -48,20 +50,20 @@ nectar_dashboard_version: nectar/queens-develop
 ### Disable murano unless you want it
 horizon_murano_enabled: False
 
-### Remember to set which keystone to point to. 
+### Remember to set which keystone to point to.
 horizon_keystone_host: "keystone.test.rc.nectar.org.au"
 ```
 
 
 roles/horizon/tasks/horizon_apache.yml
 ```
-### Comment out the mpm_worker. 
+### Comment out the mpm_worker.
 #- { state: present, name: mpm_worker }
 ```
 
 roles/horizon/templates/horizon_local_settings.py.j2
 ```
-### Disable SSO to disconnect from AAF/Shibb 
+### Disable SSO to disconnect from AAF/Shibb
 
 WEBSSO_ENABLED = False
 ```
@@ -105,9 +107,4 @@ sudo systemctl restart apache2
 | /etc/horizon/local_settings.py | Installed local_settings.py file |
 | /var/lib/horizon/dashboard.sqlite3 | sqlite3 database |
 | /opt/horizon/bin/horizon-manage.py | For running Django commands. |
-
-
-
-
-
-
+| /var/log/horizon/ | Location of logs. |

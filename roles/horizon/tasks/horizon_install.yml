@@ -18,7 +18,7 @@
     update_cache: yes
     cache_valid_time: 600
   register: apt_update
-  until: apt_update|success
+  until: apt_update is success
   retries: 5
   delay: 2
   tags:
@@ -29,7 +29,7 @@
     pkg: "{{ item }}"
     state: latest
   register: install_packages
-  until: install_packages|success
+  until: install_packages is success
   retries: 5
   delay: 2
   with_items: "{{ horizon_apt_packages }}"
@@ -58,7 +58,7 @@
       {{ (pip_install_upper_constraints is defined) | ternary('--constraint ' + pip_install_upper_constraints | default(''),'') }}
       {{ pip_install_options | default('') }}
   register: install_packages
-  until: install_packages|success
+  until: install_packages is success
   retries: 5
   delay: 2
   with_items:
@@ -76,7 +76,7 @@
     state: present
     extra_args: "{{ pip_install_options|default('') }}"
   register: install_packages
-  until: install_packages|success
+  until: install_packages is success
   retries: 5
   delay: 2
   with_items:

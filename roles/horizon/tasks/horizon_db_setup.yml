@@ -19,7 +19,7 @@
 - name: Install MySQL packages
   apt:
     name: "{{ item }}"
-    state: installed
+    state: present
     update_cache: yes
   with_items:
     - mysql-server
@@ -116,7 +116,7 @@
 - name: Install phpmyadmin packages
   apt:
     name: "{{ item }}"
-    state: installed
+    state: present
     update_cache: yes
   with_items:
     - phpmyadmin

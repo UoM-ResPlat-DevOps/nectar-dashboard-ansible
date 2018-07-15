@@ -14,10 +14,10 @@
 # limitations under the License.
 
 - include: horizon_pre_install.yml
+- include: horizon_db_setup.yml
 - include: horizon_install.yml
 - include: horizon_nectar_dashboard.yml
 - include: horizon_post_install.yml
-- include: horizon_db_setup.yml
 - include: horizon_ssl_self_signed.yml
   when: >
     horizon_ssl_enabled and

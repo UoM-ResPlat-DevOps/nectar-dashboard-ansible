@@ -65,12 +65,43 @@
     state: "link"
   with_items:
     - { src: "/etc/horizon/local_settings.py", dest: "{{ horizon_lib_dir }}/openstack_dashboard/local/local_settings.py" }
-    {% for enabled_file in nectar_dashboard_enabled -%}
-    - { src: "{{ nectar_dashboard_path }}/enabled/{{ enabled_file }}", dest: "{{ horizon_lib_dir }}/openstack_dashboard/local/enabled/{{ enabled_file }}" }
-    {%- endfor %}
   notify: Restart apache2
   tags:
     - horizon-configs
+
+- name: Create custom dashboard links
+  file:
+    src: "{{ nectar_dashboard_path }}/enabled/{{ item }}"
+    dest: "{{ horizon_lib_dir }}/openstack_dashboard/local/enabled/{{ item }}"
+    owner: "{{ horizon_system_user_name }}"
+    group: "{{ horizon_system_group_name }}"
+    state: "link"
+  with_items: "{{ nectar_dashboard_enabled }}"
+  notify: Restart apache2
+  tags:
+    - horizon-configs
+
+- name: Remove unwanted custom dashboard links
+  file:
+    path: "{{ horizon_lib_dir }}/openstack_dashboard/local/enabled/{{ item }}"
+    state: absent
+  with_items: "{{ nectar_dashboard_disabled }}"
+  notify: Restart apache2
+  tags:
+    - horizon-configs
+
+- name: Setup Horizon config(s)
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ horizon_system_user_name }}"
+    group: "{{ horizon_system_group_name }}"
+  with_items:
+    - { src: "horizon_django.wsgi.j2", dest: "{{ horizon_lib_wsgi_file }}" }
+  notify: Restart apache2
+  tags:
+    - horizon-configs
+    - horizon-wsgi-venv
 
 - name: Collect and compress static files
   command: "{{ item }}"
@@ -85,15 +116,32 @@
     - horizon-static-collect
     - horizon-command-bin
 
-- name: Setup Horizon config(s)
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ horizon_system_user_name }}"
-    group: "{{ horizon_system_group_name }}"
-  with_items:
-    - { src: "horizon_django.wsgi.j2", dest: "{{ horizon_lib_wsgi_file }}" }
-  notify: Restart apache2
+- name: Perform a horizon DB sync
+  command: "{{ horizon_bin }}/horizon-manage.py migrate --noinput"
+  become: yes
+  become_user: "{{ horizon_system_user_name }}"
   tags:
-    - horizon-configs
-    - horizon-wsgi-venv
+    - horizon-db-setup
+    - horizon-db-sync
+    - horizon-setup
+    - horizon-command-bin
+
+- name: Move theme template files to disable AAF
+  command: "mv {{ nectar_dashboard_path }}/theme/templates/auth/{{ item }} {{ nectar_dashboard_path }}/theme/templates/auth/{{ item }}.bak"
+  ignore_errors: True
+  with_items:
+    - _description.html
+    - _login.html
+    - login.html
+  when: disable_aaf
+  notify: Restart apache2
+
+- name: Move theme template files to enable AAF
+  command: "mv {{ nectar_dashboard_path }}/theme/templates/auth/{{ item }}.bak {{ nectar_dashboard_path }}/theme/templates/auth/{{ item }}"
+  ignore_errors: True
+  with_items:
+    - _description.html
+    - _login.html
+    - login.html
+  when: not disable_aaf
+  notify: Restart apache2

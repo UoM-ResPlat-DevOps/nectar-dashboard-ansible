@@ -127,16 +127,12 @@ CACHES = {
     }
 }
 
-# Send email to the console by default
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# Or send them to /dev/null
-#EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-
-# Configure these for your outgoing email host
-#EMAIL_HOST = 'smtp.my-company.com'
-#EMAIL_PORT = 25
-#EMAIL_HOST_USER = 'djangomail'
-#EMAIL_HOST_PASSWORD = 'top-secret!'
+# Configure the outgoing email host
+EMAIL_BACKEND = '{{ horizon_email_backend }}'
+EMAIL_HOST = '{{ horizon_email_host }}'
+EMAIL_PORT = {{ horizon_email_port }}
+{% if horizon_email_user is defined %}EMAIL_HOST_USER = '{{ horizon_email_user }}'{% endif %}
+{% if horizon_email_password is defined %}EMAIL_HOST_PASSWORD = '{{ horizon_email_password }}'{% endif %}
 
 {% if horizon_available_regions is defined %}
 # For multiple regions uncomment this configuration, and add (endpoint, title).
@@ -393,7 +389,7 @@ LOGGING = {
     'handlers': {
         'null': {
             'level': 'DEBUG',
-            'class': 'django.utils.log.NullHandler',
+            'class': 'logging.NullHandler',
         },
         'file': {
             'filename': '/var/log/horizon/horizon.log',
@@ -428,6 +424,11 @@ LOGGING = {
             'propagate': False,
         },
         'openstack_dashboard': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'openstack_dashboard.settings': {
             'handlers': ['file'],
             'level': 'DEBUG',
             'propagate': False,
@@ -497,6 +498,11 @@ LOGGING = {
             'propagate': False,
         },
         'scss': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'nectar_dashboard.rcallocation': {
             'handlers': ['file'],
             'level': 'DEBUG',
             'propagate': False,
@@ -719,10 +725,10 @@ KEYSTONE_ADMIN_ENDPOINT_PERMS = ('openstack.roles.tenantmanager',)
 
 # following is the comma separated list of people who are to receive
 # e-mail when an allocation request is submitted
-ALLOCATION_EMAIL_RECIPIENTS = ("allocations@nectar.org.au",)
-ALLOCATION_EMAIL_FROM = "allocations@nectar.org.au"
-ALLOCATION_EMAIL_REPLY_TO = "support@nectar.org.au"
-ALLOCATION_EMAIL_BCC_RECIPIENTS = []
+ALLOCATION_EMAIL_RECIPIENTS = {{ allocations_email_cc }}
+ALLOCATION_EMAIL_FROM = '{{ allocations_email_from_address }}'
+ALLOCATION_EMAIL_REPLY_TO = '{{ allocations_email_reply_to }}'
+ALLOCATION_EMAIL_BCC_RECIPIENTS = {{ allocations_email_bcc }}
 
 # Disable getting console in network topology view as it is a massive performance hit
 CONSOLE_TOPOLOGY_ENABLED = False
@@ -732,7 +738,7 @@ CONSOLE_TOPOLOGY_ENABLED = False
 HORIZON_CONFIG['google_analytics_key'] = '{{ horizon_google_analytics_key }}'
 {% endif %}
 
-{% if horizon_rcshibboleth_url is defined %}
+{% if (horizon_rcshibboleth_url is defined) and not disable_aaf %}
 # Shibboleth URL
 {% if horizon_ssl_enabled -%}
 HORIZON_CONFIG['rcshibboleth_url'] = "{{ horizon_rcshibboleth_url }}/?return-path=%s" % urllib.quote("https://{{ horizon_server_name }}/auth/websso/")
@@ -741,7 +747,6 @@ HORIZON_CONFIG['rcshibboleth_url'] = "{{ horizon_rcshibboleth_url }}/?return-pat
 {%- endif %}
 
 # Enables keystone web single-sign-on if set to True.
-WEBSSO_ENABLED = True
 {% endif %}
 PASSWORD_RESET_TOKEN = 'resettoken'
 
@@ -773,6 +778,26 @@ REST_VIEW_SETS = (
     ('grants', 'nectar_dashboard.rcallocation.api.GrantViewSet'),
 )
 
+{% if horizon_database_engine == 'django.db.backends.sqlite3' -%}
+DATABASES = {
+    'default': {
+        'ENGINE': '{{ horizon_database_engine }}',
+        'NAME': '{{ horizon_database_name }}',
+        'default-character-set': 'utf8'
+    },
+}
+{% elif horizon_database_engine == 'django.db.backends.mysql' -%}
+DATABASES = {
+    'default': {
+        'ENGINE': '{{ horizon_database_engine }}',
+        'NAME': '{{ horizon_mysql_database }}',
+        'HOST': '{{ horizon_mysql_host }}',
+        'USER': '{{ horizon_mysql_user }}',
+        {% if horizon_mysql_password is defined %}'PASSWORD': '{{ horizon_mysql_password }}',{% endif %}
+        'default-character-set': 'utf8'
+    },
+}
+{% else -%}
 DATABASES = {
     'default': {
         'ENGINE': '{{ horizon_database_engine }}',
@@ -783,6 +808,7 @@ DATABASES = {
         'default-character-set': 'utf8'
     },
 }
+{%- endif %}
 
 # Set the session engine configuration:
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
@@ -799,3 +825,11 @@ MURANO_USE_GLARE = False
 
 MURANO_IMAGE_FILTER_PROJECT_ID = '1fe7dcac580443a4818d10d18151e42f'
 {% endif %}
+
+####################
+# UoM settings     #
+####################
+
+HORIZON_CONFIG['navbar_support_links'] = {{ uom_navbar_support_links }}
+
+ALLOCATIONS_PROJECT_PREFIX = '{{ allocations_project_prefix }}'

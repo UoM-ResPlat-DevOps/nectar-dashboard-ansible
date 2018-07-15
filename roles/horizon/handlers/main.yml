@@ -17,3 +17,8 @@
   service:
     name: "apache2"
     state: "restarted"
+
+- name: Restart MySQL
+  service:
+    name: mysql
+    state: restarted

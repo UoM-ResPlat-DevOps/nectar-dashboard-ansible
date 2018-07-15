@@ -13,11 +13,72 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# sudo apt install phpmyadmin php-mbstring php-gettext
+# sudo phpenmod mbstring
+
+- name: Install MySQL packages
+  apt:
+    name: "{{ item }}"
+    state: installed
+    update_cache: yes
+  with_items:
+    - mysql-server
+    - python-mysqldb
+    - libmysqlclient-dev
+  when: horizon_database_engine == "django.db.backends.mysql"
+  tags:
+    - horizon-db-setup
+
+- name: Copy MySQL root credentials as .my.cnf file
+  template:
+    src: root.cnf.j2
+    dest: "{{ item }}"
+    mode: 0600
+  with_items:
+    - "~/.my.cnf"
+    - "/home/ubuntu/.my.cnf"
+  when: horizon_database_engine == "django.db.backends.mysql"
+  tags:
+    - horizon-db-setup
+
+- name: Update MySQL root password for all root accounts
+  mysql_user:
+    name: "{{ mysql_root_user }}"
+    host: "{{ item }}"
+    password: "{{ mysql_root_password }}"
+    state: present
+  with_items:
+    - "{{ horizon_mysql_host }}"
+  when: horizon_database_engine == "django.db.backends.mysql"
+  tags:
+    - horizon-db-setup
+
+- name: Remove anonymous users from database
+  mysql_user:
+    name: ""
+    host: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ horizon_mysql_host }}"
+  when: horizon_database_engine == "django.db.backends.mysql"
+  tags:
+    - horizon-db-setup
+
+- name: Remove MySQL test database
+  mysql_db:
+    name: test
+    state: absent
+  notify:
+    - Restart MySQL
+  when: horizon_database_engine == "django.db.backends.mysql"
+  tags:
+    - horizon-db-setup
+
 - name: Create DB for service
   mysql_db:
     login_user: "{{ mysql_root_user }}"
     login_password: "{{ mysql_root_password }}"
-    login_host: "{{ horizon_mysql_address }}"
+    login_host: "{{ horizon_mysql_host }}"
     name: "{{ horizon_mysql_database }}"
     state: "present"
   when: horizon_database_engine == "django.db.backends.mysql"
@@ -28,9 +89,9 @@
   mysql_user:
     login_user: "{{ mysql_root_user }}"
     login_password: "{{ mysql_root_password }}"
-    login_host: "{{ horizon_mysql_address }}"
+    login_host: "{{ horizon_mysql_host }}"
     name: "{{ horizon_mysql_user }}"
-    password: "{{ horizon_container_mysql_password }}"
+    password: "{{ horizon_mysql_password }}"
     host: "{{ item }}"
     state: "present"
     priv: "{{ horizon_mysql_database }}.*:ALL"
@@ -41,16 +102,6 @@
   tags:
     - horizon-db-setup
 
-- name: Perform a horizon DB sync
-  command: "{{ horizon_bin }}/horizon-manage.py syncdb --noinput"
-  become: yes
-  become_user: "{{ horizon_system_user_name }}"
-  tags:
-    - horizon-db-setup
-    - horizon-db-sync
-    - horizon-setup
-    - horizon-command-bin
-
 - name: Register DB session cleanup cron
   cron:
     name: "Clear out expired sessions"
@@ -59,5 +110,24 @@
     job: "{{ horizon_bin }}/horizon-manage.py clearsessions"
     user: "{{ horizon_system_user_name }}"
     state: present
+  tags:
+    - horizon-db-setup
+
+- name: Install phpmyadmin packages
+  apt:
+    name: "{{ item }}"
+    state: installed
+    update_cache: yes
+  with_items:
+    - phpmyadmin
+    - php-mbstring
+    - php-gettext
+  when: (horizon_database_engine == "django.db.backends.mysql") and mysql_install_phpmyadmin
+  tags:
+    - horizon-db-setup
+
+- name: Enable mbstring for phpmyadmin (works with Debian only)
+  command: "phpenmod mbstring"
+  when: (horizon_database_engine == "django.db.backends.mysql") and mysql_install_phpmyadmin
   tags:
     - horizon-db-setup

@@ -1,7 +1,10 @@
 ---
 
+## Disable AAF? (To log in using Keystone auth directly)
+disable_aaf: False
+
 ## Verbosity Options
-debug: False
+debug: True
 verbose: True
 
 # Name of the virtual env to deploy into
@@ -17,19 +20,39 @@ horizon_developer_constraints:
   - 'git+https://github.com/openstack/murano-pkg-check.git@47f7379e5e91eac2ba9ede6645cb56ff305d2c0c#egg=murano-pkg-check' # https://bugs.launchpad.net/murano/+bug/1653060
   - 'git+https://github.com/openstack/murano-dashboard.git@stable/queens#egg=muranodashboard'
 
+## DB info (set to django.db.backends.mysql or django.db.backends.sqlite3)
+horizon_database_engine: django.db.backends.mysql
 
-## NeCTAR dashboard customisation
+## DB info for MySQL
+mysql_install_phpmyadmin: True
+mysql_root_user: root
+mysql_root_password: myrootpassword
+horizon_mysql_host: localhost
+horizon_mysql_user: horizon
+horizon_mysql_password: mydbpassword
+horizon_mysql_database: dashboard1
+
+## DB info for SQLite and other non-MySQL
+# horizon_database_name: "{{ horizon_system_user_home }}/dashboard.sqlite3"
+# horizon_database_address: localhost
+# horizon_database_user: horizon
+# horizon_database_password: mydbpassword
+
+## Session configuration
+horizon_session_timeout: 21600  # 6 hours
+
+## Dashboard customisations
+horizon_site_name: Melbourne Research Cloud
+
 nectar_dashboard_repo: 'https://github.com/UoM-ResPlat-DevOps/uom-cloud-dashboard.git'
 nectar_dashboard_path: /opt/uom-cloud-dashboard
-nectar_dashboard_version: nectar/queens
-horizon_site_name: Melbourne Research Cloud
+nectar_dashboard_version: nectar/queens-develop
 
 nectar_dashboard_enabled:
   - _40_disable_change_password.py
   - _40_disable_identity.py
   - _50_reset_password_panel.py
   - _70_allocations.py
-  - _80_manila_project_add_share_panel_group.py
   - _9000_disable_dns_reversedns.py
   - _9000_disable_trove_clusters.py
   - _9000_disable_volume_cg.py
@@ -37,10 +60,36 @@ nectar_dashboard_enabled:
   - _9001_users_add_panel_to_group.py
   - _9900_disable_share_networks.py
   - _9900_users_add_panel_group.py
+nectar_dashboard_disabled:
+  - _80_manila_project_add_share_panel_group.py
 
-horizon_murano_enabled: True
-horizon_murano_api_url: 'https://murano.test.rc.nectar.org.au:8082'
-horizon_rcshibboleth_url: 'https://accounts.test.rc.nectar.org.au/rcshibboleth'
+## Allocations customisations
+allocations_project_prefix: unimelb-
+allocations_email_from_address: "My Research Cloud <support@researchcloud.tld>"
+allocations_email_reply_to: support@researchcloud.tld
+# The following two vars must be lists
+allocations_email_cc:
+  - admin@researchcloud.tld
+allocations_email_bcc: []
+
+## Email settings
+# To email to console: django.core.mail.backends.console.EmailBackend
+horizon_email_backend: django.core.mail.backends.smtp.EmailBackend
+horizon_email_host: smtp.unimelb.edu.au
+horizon_email_port: 25
+# Keep the user and password commented out if they're not needed:
+# horizon_email_user
+# horizon_email_password
+
+# UoM nav support links
+uom_navbar_support_links:
+  - text: Submit a ticket
+    icon: fa-ticket
+    url: https://unimelb.service-now.com/research
+  - '-'
+  - text: Research Platform Services
+    icon: fa-external-link
+    url: https://research.unimelb.edu.au/infrastructure/research-platform-services
 
 ## System info
 horizon_system_user_name: horizon
@@ -49,16 +98,14 @@ horizon_system_shell: /bin/false
 horizon_system_comment: horizon system user
 horizon_system_user_home: "/var/lib/{{ horizon_system_user_name }}"
 
+# Service end-points
+horizon_rcshibboleth_url: 'https://accounts.test.rc.nectar.org.au/rcshibboleth'
+horizon_murano_enabled: True
+horizon_murano_api_url: 'https://murano.test.rc.nectar.org.au:8082'
+
 ## Service Type and Data
 horizon_service_region: RegionOne
 horizon_service_name: horizon
-
-## DB info
-horizon_database_engine: django.db.backends.sqlite3
-horizon_database_name: "{{ horizon_system_user_home }}/dashboard.sqlite3"
-
-## Session configuration
-horizon_session_timeout: 21600  # 6 hours
 
 ## Horizon Help URL Path
 horizon_help_url: 'https://support.ehelp.edu.au/'
@@ -72,10 +119,10 @@ horizon_non_venv_lib_dir: "/usr/local/lib/python2.7/dist-packages"
 horizon_lib_dir: "{{ (horizon_venv_enabled | bool) | ternary(horizon_venv_lib_dir, horizon_non_venv_lib_dir) }}"
 horizon_lib_wsgi_file: "{{ horizon_lib_dir }}/openstack_dashboard/wsgi/django.wsgi"
 
-horizon_server_name: "dashboard-custom.dev.rc.nectar.org.au"
+horizon_server_name: researchcloud.tld
 horizon_apache_servertokens: "Prod"
 horizon_apache_serversignature: "Off"
-horizon_log_level: info
+horizon_log_level: debug
 horizon_apache_custom_log_format: combined
 horizon_dropdown_max_items: 30
 horizon_time_zone: "Australia/Melbourne"
@@ -121,7 +168,8 @@ horizon_ssl_no_verify: True
 horizon_default_role_name: Member
 
 ## Horizon secret key
-horizon_secret_key: '{{ lookup("password", "credentials/horizon/secret_key length=32") }}'
+#horizon_secret_key: '{{ lookup("password", "credentials/horizon/secret_key length=32") }}'
+horizon_secret_key: random_hash
 
 ## Launch instance
 horizon_launch_instance_legacy: True

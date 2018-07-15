@@ -25,3 +25,8 @@
   notify: Restart apache2
   tags:
     - horizon-pip-packages
+
+- name: Install NeCTAR dashboard requirements.txt
+  pip:
+    requirements: "{{ nectar_dashboard_path }}/requirements.txt"
+    virtualenv: "{{ horizon_venv_path }}"

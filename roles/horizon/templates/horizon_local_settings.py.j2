@@ -833,3 +833,14 @@ MURANO_IMAGE_FILTER_PROJECT_ID = '1fe7dcac580443a4818d10d18151e42f'
 HORIZON_CONFIG['navbar_support_links'] = {{ uom_navbar_support_links }}
 
 ALLOCATIONS_PROJECT_PREFIX = '{{ allocations_project_prefix }}'
+
+ALLOCATIONS_KEYSTONE = (
+      ('auth_url', OPENSTACK_KEYSTONE_URL),
+      ('username', '{{ allocations_keystone_username }}'),
+      ('password', '{{ allocations_keystone_password }}'),
+      ('project_name', '{{ allocations_keystone_project_name }}'),
+      ('user_domain_id', 'default'),
+      ('project_domain_id', 'default'),
+  )
+
+ALLOCATIONS_NECTAR_ADMIN_ROLE = '{{ allocations_nectar_admin_role }}'

@@ -47,6 +47,9 @@ If you wish to disable AAF:
 disable_aaf: True
 ```
 
+Edit the ``allocations_`` variables if you intend to use the allocations
+system.
+
 ### Enabling SSL
 
 SSL is disabled by default.

@@ -72,6 +72,12 @@ allocations_email_cc:
   - admin@researchcloud.tld
 allocations_email_bcc: []
 
+# Required for using the NeCTAR allocations client
+allocations_keystone_username: yourname@institution.tld
+allocations_keystone_password: yourpassword
+allocations_keystone_project_name: yourproject
+allocations_nectar_admin_role: AllocationAdmin
+
 ## Email settings
 # To email to console: django.core.mail.backends.console.EmailBackend
 horizon_email_backend: django.core.mail.backends.smtp.EmailBackend

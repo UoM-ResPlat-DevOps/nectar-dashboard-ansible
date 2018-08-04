@@ -66,17 +66,20 @@ nectar_dashboard_disabled:
 ## Allocations customisations
 allocations_project_prefix: unimelb-
 allocations_email_from_address: "My Research Cloud <support@researchcloud.tld>"
-allocations_email_reply_to: support@researchcloud.tld
-# The following two vars must be lists
+# The following three vars must be lists
 allocations_email_cc:
   - admin@researchcloud.tld
 allocations_email_bcc: []
+allocations_email_reply_to:
+  - support@researchcloud.tld
 
 # Required for using the NeCTAR allocations client
 allocations_keystone_username: yourname@institution.tld
 allocations_keystone_password: yourpassword
 allocations_keystone_project_name: yourproject
 allocations_nectar_admin_role: AllocationAdmin
+allocations_nectar_client_vers: '1'
+allocations_nectar_client_source: uom
 
 ## Email settings
 # To email to console: django.core.mail.backends.console.EmailBackend

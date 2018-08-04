@@ -727,7 +727,7 @@ KEYSTONE_ADMIN_ENDPOINT_PERMS = ('openstack.roles.tenantmanager',)
 # e-mail when an allocation request is submitted
 ALLOCATION_EMAIL_RECIPIENTS = {{ allocations_email_cc }}
 ALLOCATION_EMAIL_FROM = '{{ allocations_email_from_address }}'
-ALLOCATION_EMAIL_REPLY_TO = '{{ allocations_email_reply_to }}'
+ALLOCATION_EMAIL_REPLY_TO = {{ allocations_email_reply_to }}
 ALLOCATION_EMAIL_BCC_RECIPIENTS = {{ allocations_email_bcc }}
 
 # Disable getting console in network topology view as it is a massive performance hit
@@ -843,4 +843,8 @@ ALLOCATIONS_KEYSTONE = (
       ('project_domain_id', 'default'),
   )
 
+ALLOCATIONS_NECTAR_CLIENT_VERS = '{{ allocations_nectar_client_vers }}'
+
 ALLOCATIONS_NECTAR_ADMIN_ROLE = '{{ allocations_nectar_admin_role }}'
+
+ALLOCATIONS_NECTAR_SOURCE = '{{ allocations_nectar_client_source }}'
